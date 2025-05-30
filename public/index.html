@@ -1,28 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="transition duration-300">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lyrics Finder 🎵</title>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script>
+    // Load saved theme
+    if (localStorage.theme === 'light') {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+<body class="bg-gray-900 text-white dark:bg-gray-900 dark:text-white light:bg-white light:text-black min-h-screen flex flex-col items-center justify-center p-4 transition duration-300">
+
+  <div class="absolute top-4 right-4">
+    <button id="toggleTheme" class="bg-gray-800 dark:bg-gray-200 text-white dark:text-black px-3 py-1 rounded shadow">
+      Toggle Theme
+    </button>
+  </div>
+
   <h1 class="text-3xl font-bold mb-6 text-center">🎶 Lyrics Finder</h1>
 
   <input id="titleInput" type="text" placeholder="Enter song title" 
          class="w-full max-w-md p-3 rounded text-black mb-4" />
 
   <button id="searchBtn" 
-          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
+          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 transition duration-200">
     Find Lyrics
   </button>
 
-  <pre id="output" class="bg-white text-black p-4 rounded w-full max-w-md overflow-auto mb-6">
+  <div id="spinner" class="hidden mb-4 animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+
+  <pre id="output" class="bg-white dark:bg-gray-100 text-black p-4 rounded w-full max-w-md overflow-auto mb-6 whitespace-pre-wrap">
 Lyrics will appear here...
   </pre>
 
   <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank"
-     class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-full">
+     class="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-full transition duration-200 shadow-md">
+    <i data-feather="facebook"></i>
     Follow Sxe Ci 💖
   </a>
 
@@ -30,6 +50,8 @@ Lyrics will appear here...
     const searchBtn = document.getElementById("searchBtn");
     const titleInput = document.getElementById("titleInput");
     const output = document.getElementById("output");
+    const spinner = document.getElementById("spinner");
+    const themeToggle = document.getElementById("toggleTheme");
 
     searchBtn.addEventListener("click", () => {
       const title = titleInput.value.trim();
@@ -38,11 +60,13 @@ Lyrics will appear here...
         return;
       }
 
-      output.textContent = "🔄 Searching...";
+      output.textContent = "";
+      spinner.classList.remove("hidden");
 
       fetch(`/api/lyrics?title=${encodeURIComponent(title)}`)
         .then(res => res.json())
         .then(data => {
+          spinner.classList.add("hidden");
           if (data.response && data.response.trim() !== "") {
             output.textContent = data.response;
           } else {
@@ -51,9 +75,25 @@ Lyrics will appear here...
         })
         .catch(err => {
           console.error(err);
+          spinner.classList.add("hidden");
           output.textContent = "⚠️ Error fetching lyrics.";
         });
     });
+
+    themeToggle.addEventListener("click", () => {
+      const html = document.documentElement;
+      if (html.classList.contains("light")) {
+        html.classList.remove("light");
+        html.classList.add("dark");
+        localStorage.theme = 'dark';
+      } else {
+        html.classList.remove("dark");
+        html.classList.add("light");
+        localStorage.theme = 'light';
+      }
+    });
+
+    feather.replace(); // Feather icons
   </script>
 </body>
 </html>
