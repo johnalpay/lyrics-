@@ -3,62 +3,57 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lyrics Finder 🎶</title>
+  <title>Lyrics Finder 🎵</title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-6 space-y-6">
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+  <h1 class="text-3xl font-bold mb-6 text-center">🎶 Lyrics Finder</h1>
 
-  <h1 class="text-4xl font-bold text-center">🎶 Lyrics Finder</h1>
+  <input id="titleInput" type="text" placeholder="Enter song title" 
+         class="w-full max-w-md p-3 rounded text-black mb-4" />
 
-  <input
-    type="text"
-    id="titleInput"
-    placeholder="Enter song title..."
-    class="px-4 py-2 rounded w-full max-w-md text-black"
-    onkeydown="if(event.key==='Enter') getLyrics()"
-  />
-
-  <button
-    onclick="getLyrics()"
-    class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded"
-    id="searchBtn"
-  >
+  <button id="searchBtn" 
+          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4">
     Find Lyrics
   </button>
 
-  <div id="lyricsOutput" class="w-full max-w-2xl bg-white text-black p-4 rounded shadow hidden whitespace-pre-wrap"></div>
+  <pre id="output" class="bg-white text-black p-4 rounded w-full max-w-md overflow-auto mb-6">
+Lyrics will appear here...
+  </pre>
 
-  <a
-    href="https://www.facebook.com/profile.php?id=61576992292379"
-    target="_blank"
-    class="mt-6 inline-block bg-pink-600 hover:bg-pink-700 text-white px-6 py-2 rounded-full shadow-md"
-  >
+  <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank"
+     class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-full">
     Follow Sxe Ci 💖
   </a>
 
   <script>
-    async function getLyrics() {
-      const title = document.getElementById('titleInput').value.trim();
-      const output = document.getElementById('lyricsOutput');
-      const btn = document.getElementById('searchBtn');
+    const searchBtn = document.getElementById("searchBtn");
+    const titleInput = document.getElementById("titleInput");
+    const output = document.getElementById("output");
 
-      if (!title) return alert('Please enter a song title.');
-
-      btn.textContent = 'Searching...';
-      output.classList.add('hidden');
-
-      try {
-        const res = await fetch(`/api/lyrics?title=${encodeURIComponent(title)}`);
-        const data = await res.json();
-        output.textContent = data.lyrics || 'Lyrics not found.';
-      } catch (err) {
-        output.textContent = 'Error fetching lyrics.';
+    searchBtn.addEventListener("click", () => {
+      const title = titleInput.value.trim();
+      if (!title) {
+        output.textContent = "❗ Please enter a song title.";
+        return;
       }
 
-      output.classList.remove('hidden');
-      btn.textContent = 'Find Lyrics';
-    }
-  </script>
+      output.textContent = "🔄 Searching...";
 
+      fetch(`/api/lyrics?title=${encodeURIComponent(title)}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.response && data.response.trim() !== "") {
+            output.textContent = data.response;
+          } else {
+            output.textContent = "❌ Walang lyrics na nahanap.";
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          output.textContent = "⚠️ Error fetching lyrics.";
+        });
+    });
+  </script>
 </body>
 </html>
