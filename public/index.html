@@ -6,7 +6,6 @@
   <title>Lyrics Finder 🎵</title>
   <script src="https://unpkg.com/feather-icons"></script>
   <script>
-    // Load saved theme
     if (localStorage.theme === 'light') {
       document.documentElement.classList.remove('dark');
       document.documentElement.classList.add('light');
@@ -18,7 +17,7 @@
 </head>
 <body class="bg-gray-900 text-white dark:bg-gray-900 dark:text-white light:bg-white light:text-black min-h-screen flex flex-col items-center justify-center p-4 transition duration-300">
 
-  <div class="absolute top-4 right-4">
+  <div class="absolute top-4 right-4 space-x-2">
     <button id="toggleTheme" class="bg-gray-800 dark:bg-gray-200 text-white dark:text-black px-3 py-1 rounded shadow">
       Toggle Theme
     </button>
@@ -27,7 +26,11 @@
   <h1 class="text-3xl font-bold mb-6 text-center">🎶 Lyrics Finder</h1>
 
   <input id="titleInput" type="text" placeholder="Enter song title" 
-         class="w-full max-w-md p-3 rounded text-black mb-4" />
+         class="w-full max-w-md p-3 rounded text-black mb-2" />
+
+  <select id="historyDropdown" class="w-full max-w-md p-2 mb-4 rounded text-black">
+    <option value="">🔁 Choose from history...</option>
+  </select>
 
   <button id="searchBtn" 
           class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 transition duration-200">
@@ -36,9 +39,14 @@
 
   <div id="spinner" class="hidden mb-4 animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
 
-  <pre id="output" class="bg-white dark:bg-gray-100 text-black p-4 rounded w-full max-w-md overflow-auto mb-6 whitespace-pre-wrap">
+  <pre id="output" class="bg-white dark:bg-gray-100 text-black p-4 rounded w-full max-w-md overflow-auto mb-4 whitespace-pre-wrap">
 Lyrics will appear here...
   </pre>
+
+  <div class="flex gap-4 mb-6">
+    <button id="copyBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">📋 Copy</button>
+    <button id="downloadBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">⬇️ Download</button>
+  </div>
 
   <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank"
      class="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-full transition duration-200 shadow-md">
@@ -51,7 +59,34 @@ Lyrics will appear here...
     const titleInput = document.getElementById("titleInput");
     const output = document.getElementById("output");
     const spinner = document.getElementById("spinner");
+    const copyBtn = document.getElementById("copyBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
     const themeToggle = document.getElementById("toggleTheme");
+    const historyDropdown = document.getElementById("historyDropdown");
+
+    let currentLyrics = "";
+    let currentTitle = "";
+
+    function updateHistory(title) {
+      let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
+      if (!history.includes(title)) {
+        history.unshift(title);
+        if (history.length > 10) history = history.slice(0, 10);
+        localStorage.setItem("lyricsHistory", JSON.stringify(history));
+        renderHistoryDropdown();
+      }
+    }
+
+    function renderHistoryDropdown() {
+      let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
+      historyDropdown.innerHTML = '<option value="">🔁 Choose from history...</option>';
+      history.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item;
+        opt.textContent = item;
+        historyDropdown.appendChild(opt);
+      });
+    }
 
     searchBtn.addEventListener("click", () => {
       const title = titleInput.value.trim();
@@ -62,6 +97,8 @@ Lyrics will appear here...
 
       output.textContent = "";
       spinner.classList.remove("hidden");
+      currentLyrics = "";
+      currentTitle = title;
 
       fetch(`/api/lyrics?title=${encodeURIComponent(title)}`)
         .then(res => res.json())
@@ -69,8 +106,10 @@ Lyrics will appear here...
           spinner.classList.add("hidden");
           if (data.response && data.response.trim() !== "") {
             output.textContent = data.response;
+            currentLyrics = data.response;
+            updateHistory(title);
           } else {
-            output.textContent = "❌ Walang lyrics na nahanap.";
+            output.textContent = "❌ No lyrics found.";
           }
         })
         .catch(err => {
@@ -78,6 +117,23 @@ Lyrics will appear here...
           spinner.classList.add("hidden");
           output.textContent = "⚠️ Error fetching lyrics.";
         });
+    });
+
+    copyBtn.addEventListener("click", () => {
+      if (currentLyrics) {
+        navigator.clipboard.writeText(currentLyrics);
+        alert("✅ Lyrics copied!");
+      }
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      if (currentLyrics) {
+        const blob = new Blob([currentLyrics], { type: "text/plain" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${currentTitle || "lyrics"}.txt`;
+        link.click();
+      }
     });
 
     themeToggle.addEventListener("click", () => {
@@ -93,6 +149,15 @@ Lyrics will appear here...
       }
     });
 
+    historyDropdown.addEventListener("change", () => {
+      const selected = historyDropdown.value;
+      if (selected) {
+        titleInput.value = selected;
+        searchBtn.click();
+      }
+    });
+
+    renderHistoryDropdown();
     feather.replace(); // Feather icons
   </script>
 </body>
