@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lyrics Finder 🎵</title>
+  <title>Lyrics Finder</title>
   <script src="https://unpkg.com/feather-icons"></script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <script>
     if (localStorage.theme === 'light') {
       document.documentElement.classList.remove('dark');
@@ -13,48 +14,65 @@
       document.documentElement.classList.add('dark');
     }
   </script>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-900 text-white dark:bg-gray-900 dark:text-white light:bg-white light:text-black min-h-screen flex flex-col items-center justify-center p-4 transition duration-300">
+<body class="bg-gray-900 text-white light:bg-white light:text-black min-h-screen flex flex-col items-center justify-center p-4 transition duration-300">
 
-  <div class="absolute top-4 right-4 space-x-2">
+  <!-- Theme Toggle Button -->
+  <div class="absolute top-4 right-4">
     <button id="toggleTheme" title="Toggle Dark/Light Mode"
-  class="bg-gray-700 dark:bg-yellow-400 text-white dark:text-black p-2 rounded-full shadow text-lg">
-  🌙
-</button>
+      class="bg-gray-700 dark:bg-yellow-400 text-white dark:text-black p-3 rounded-full shadow hover:scale-110 transition-transform">
+      <i data-feather="moon"></i>
+    </button>
   </div>
 
-  <h1 class="text-3xl font-bold mb-6 text-center">🎶 Lyrics Finder</h1>
+  <!-- Title -->
+  <h1 class="text-4xl font-bold mb-6 text-center flex items-center gap-2">
+    <i data-feather="music"></i> Lyrics Finder
+  </h1>
 
-  <input id="titleInput" type="text" placeholder="Enter song title" 
-         class="w-full max-w-md p-3 rounded text-black mb-2" />
+  <!-- Input -->
+  <input id="titleInput" type="text" placeholder="Enter song title"
+         class="w-full max-w-md p-3 rounded text-black focus:ring-2 focus:ring-blue-500 mb-2 transition"/>
 
+  <!-- History -->
   <select id="historyDropdown" class="w-full max-w-md p-2 mb-4 rounded text-black">
-    <option value="">🔁 Choose from history...</option>
+    <option value="">Choose from history...</option>
   </select>
 
-  <button id="searchBtn" 
-          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 transition duration-200">
-    Find Lyrics
+  <!-- Search -->
+  <button id="searchBtn"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow-md transform hover:scale-105 transition">
+    <i data-feather="search" class="inline-block mr-2"></i> Find Lyrics
   </button>
 
-  <div id="spinner" class="hidden mb-4 animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+  <!-- Spinner -->
+  <div id="spinner" class="hidden mt-4 animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
 
-  <pre id="output" class="bg-white dark:bg-gray-100 text-black p-4 rounded w-full max-w-md overflow-auto mb-4 whitespace-pre-wrap">
+  <!-- Output -->
+  <pre id="output"
+       class="bg-white dark:bg-gray-100 text-black p-4 rounded w-full max-w-md overflow-auto mt-4 whitespace-pre-wrap min-h-[200px]">
 Lyrics will appear here...
   </pre>
 
-  <div class="flex gap-4 mb-6">
-    <button id="copyBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">📋 Copy</button>
-    <button id="downloadBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">⬇️ Download</button>
+  <!-- Actions -->
+  <div class="flex gap-4 mt-6">
+    <button id="copyBtn"
+            class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded flex items-center gap-2 transform hover:scale-105 transition">
+      <i data-feather="copy"></i> Copy
+    </button>
+    <button id="downloadBtn"
+            class="bg-yellow-500 hover:bg-yellow-600 text-white px-5 py-2 rounded flex items-center gap-2 transform hover:scale-105 transition">
+      <i data-feather="download"></i> Download
+    </button>
   </div>
 
+  <!-- Follow Button -->
   <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank"
-     class="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-full transition duration-200 shadow-md">
-    <i data-feather="facebook"></i>
-    Follow Sxe Ci 💖
+     class="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-full mt-6 shadow-md transform hover:scale-105 transition">
+    <i data-feather="facebook"></i> Follow Sxe Ci
   </a>
 
+  <!-- Scripts -->
   <script>
     const searchBtn = document.getElementById("searchBtn");
     const titleInput = document.getElementById("titleInput");
@@ -80,7 +98,7 @@ Lyrics will appear here...
 
     function renderHistoryDropdown() {
       let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
-      historyDropdown.innerHTML = '<option value="">🔁 Choose from history...</option>';
+      historyDropdown.innerHTML = '<option value="">Choose from history...</option>';
       history.forEach(item => {
         const opt = document.createElement("option");
         opt.value = item;
