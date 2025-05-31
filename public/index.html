@@ -6,6 +6,88 @@
   <title>Lyrics Finder</title>
   <script src="https://unpkg.com/feather-icons"></script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+
+  <style>
+    /* Custom vibrant button styles */
+    .btn-angas {
+      @apply font-bold rounded shadow-lg transform transition-transform duration-300 ease-in-out;
+      box-shadow:
+        0 0 8px rgba(255, 0, 128, 0.7),
+        0 0 15px rgba(255, 0, 128, 0.5),
+        0 0 20px rgba(255, 0, 128, 0.3);
+    }
+    .btn-angas:hover {
+      transform: scale(1.12);
+      box-shadow:
+        0 0 15px rgba(255, 0, 128, 1),
+        0 0 25px rgba(255, 0, 128, 0.8),
+        0 0 35px rgba(255, 0, 128, 0.5);
+    }
+    /* Different color variants */
+    .btn-blue-angas {
+      background: linear-gradient(45deg, #4f46e5, #3b82f6);
+      color: white;
+    }
+    .btn-red-angas {
+      background: linear-gradient(45deg, #ef4444, #b91c1c);
+      color: white;
+    }
+    .btn-green-angas {
+      background: linear-gradient(45deg, #10b981, #047857);
+      color: white;
+    }
+    .btn-yellow-angas {
+      background: linear-gradient(45deg, #facc15, #ca8a04);
+      color: black;
+      font-weight: 700;
+      text-shadow: 0 0 6px #fbbf24;
+    }
+    .btn-pink-angas {
+      background: linear-gradient(45deg, #db2777, #be185d);
+      color: white;
+    }
+
+    /* Custom loading animation */
+    .loading-spinner {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      margin: auto;
+    }
+    .loading-spinner .circle {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #ec4899; /* pink-500 */
+      border-radius: 50%;
+      animation-timing-function: cubic-bezier(0, 1, 1, 0);
+    }
+    .loading-spinner .circle1 {
+      left: 0;
+      animation: loading-spin 1.2s infinite;
+    }
+    .loading-spinner .circle2 {
+      left: 18px;
+      animation: loading-spin 1.2s infinite 0.1s;
+    }
+    .loading-spinner .circle3 {
+      left: 36px;
+      animation: loading-spin 1.2s infinite 0.2s;
+    }
+
+    @keyframes loading-spin {
+      0% {
+        transform: scale(0);
+      }
+      50% {
+        transform: scale(1);
+      }
+      100% {
+        transform: scale(0);
+      }
+    }
+  </style>
+
   <script>
     if (localStorage.theme === 'light') {
       document.documentElement.classList.remove('dark');
@@ -46,18 +128,22 @@
 
   <!-- Search and Reset Buttons -->
   <div class="flex flex-wrap gap-4 justify-center">
-    <button id="searchBtn"
-            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow-md transform hover:scale-105 transition">
-      <i data-feather="search" class="inline-block mr-2"></i> Find Lyrics
+    <button id="searchBtn" class="btn-angas btn-blue-angas py-2 px-6 flex items-center gap-2">
+      <i data-feather="search" class="inline-block"></i> Find Lyrics
     </button>
-    <button id="resetBtn"
-            class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded shadow-md transform hover:scale-105 transition">
-      <i data-feather="x-circle" class="inline-block mr-2"></i> Reset
+    <button id="resetBtn" class="btn-angas btn-red-angas py-2 px-6 flex items-center gap-2">
+      <i data-feather="x-circle" class="inline-block"></i> Reset
     </button>
   </div>
 
   <!-- Spinner -->
-  <div id="spinner" class="hidden mt-4 animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+  <div id="spinner" class="hidden mt-6">
+    <div class="loading-spinner">
+      <div class="circle circle1"></div>
+      <div class="circle circle2"></div>
+      <div class="circle circle3"></div>
+    </div>
+  </div>
 
   <!-- Output -->
   <pre id="output"
@@ -67,19 +153,17 @@ Lyrics will appear here...
 
   <!-- Actions -->
   <div class="flex gap-4 mt-6">
-    <button id="copyBtn"
-            class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded flex items-center gap-2 transform hover:scale-105 transition">
+    <button id="copyBtn" class="btn-angas btn-green-angas px-5 py-2 flex items-center gap-2">
       <i data-feather="copy"></i> Copy
     </button>
-    <button id="downloadBtn"
-            class="bg-yellow-500 hover:bg-yellow-600 text-white px-5 py-2 rounded flex items-center gap-2 transform hover:scale-105 transition">
+    <button id="downloadBtn" class="btn-angas btn-yellow-angas px-5 py-2 flex items-center gap-2">
       <i data-feather="download"></i> Download
     </button>
   </div>
 
   <!-- Follow Button -->
   <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank"
-     class="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-full mt-6 shadow-md transform hover:scale-105 transition">
+     class="flex items-center gap-2 btn-angas btn-pink-angas font-bold py-2 px-6 rounded-full mt-6 shadow-md transform hover:scale-110 transition">
     <i data-feather="facebook"></i> Follow Sxe Ci
   </a>
 
@@ -199,5 +283,4 @@ Lyrics will appear here...
     feather.replace(); // Feather icons
   </script>
 </body>
-  </html>
-      
+</html>
