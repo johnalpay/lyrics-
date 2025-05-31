@@ -27,23 +27,34 @@
 
   <!-- Title -->
   <h1 class="text-4xl font-bold mb-6 text-center flex items-center gap-2">
-    <i data-feather="music"></i> Lyrics Finder
+    <i data-feather="music"></i>
+    <img src="https://i.imgur.com/3Y3ZK5F.png" alt="Logo" class="w-8 h-8"> <!-- logo icon -->
+    Lyrics Finder
   </h1>
 
   <!-- Input -->
   <input id="titleInput" type="text" placeholder="Enter song title"
          class="w-full max-w-md p-3 rounded text-black focus:ring-2 focus:ring-blue-500 mb-2 transition"/>
 
-  <!-- History -->
-  <select id="historyDropdown" class="w-full max-w-md p-2 mb-4 rounded text-black">
-    <option value="">Choose from history...</option>
-  </select>
+  <!-- History Box -->
+  <div class="bg-gray-800 light:bg-gray-200 p-4 rounded shadow w-full max-w-md mb-4">
+    <label for="historyDropdown" class="block text-sm font-bold mb-2">History</label>
+    <select id="historyDropdown" class="w-full p-2 rounded text-black">
+      <option value="">Choose from history...</option>
+    </select>
+  </div>
 
-  <!-- Search -->
-  <button id="searchBtn"
-          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow-md transform hover:scale-105 transition">
-    <i data-feather="search" class="inline-block mr-2"></i> Find Lyrics
-  </button>
+  <!-- Search and Reset Buttons -->
+  <div class="flex flex-wrap gap-4 justify-center">
+    <button id="searchBtn"
+            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded shadow-md transform hover:scale-105 transition">
+      <i data-feather="search" class="inline-block mr-2"></i> Find Lyrics
+    </button>
+    <button id="resetBtn"
+            class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded shadow-md transform hover:scale-105 transition">
+      <i data-feather="x-circle" class="inline-block mr-2"></i> Reset
+    </button>
+  </div>
 
   <!-- Spinner -->
   <div id="spinner" class="hidden mt-4 animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
@@ -75,6 +86,7 @@ Lyrics will appear here...
   <!-- Scripts -->
   <script>
     const searchBtn = document.getElementById("searchBtn");
+    const resetBtn = document.getElementById("resetBtn");
     const titleInput = document.getElementById("titleInput");
     const output = document.getElementById("output");
     const spinner = document.getElementById("spinner");
@@ -155,6 +167,13 @@ Lyrics will appear here...
       }
     });
 
+    resetBtn.addEventListener("click", () => {
+      titleInput.value = "";
+      output.textContent = "Lyrics will appear here...";
+      currentLyrics = "";
+      currentTitle = "";
+    });
+
     themeToggle.addEventListener("click", () => {
       const html = document.documentElement;
       if (html.classList.contains("light")) {
@@ -180,4 +199,5 @@ Lyrics will appear here...
     feather.replace(); // Feather icons
   </script>
 </body>
-</html>
+  </html>
+      
