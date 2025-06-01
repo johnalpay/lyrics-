@@ -1,195 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="bg-gray-900 text-white">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lyrics Finder</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #121212;
-      color: #ffffff;
-      padding: 2rem;
-      max-width: 600px;
-      margin: auto;
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      margin-bottom: 1.5rem;
-    }
-
-    .logo {
-      font-size: 2rem;
-      margin-right: 0.6rem;
-      color: #1db954;
-    }
-
-    h1 {
-      font-size: 1.8rem;
-      font-weight: bold;
-    }
-
-    input, button {
-      width: 100%;
-      padding: 0.7rem;
-      margin-top: 0.7rem;
-      border-radius: 6px;
-      border: none;
-      font-size: 1rem;
-    }
-
-    input {
-      background-color: #1e1e1e;
-      color: #fff;
-    }
-
-    button {
-      background-color: #1db954;
-      color: white;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    button:hover {
-      background-color: #1ed760;
-    }
-
-    pre {
-      white-space: pre-wrap;
-      background: #1e1e1e;
-      padding: 1rem;
-      border-radius: 8px;
-      margin-top: 1.5rem;
-      font-size: 1rem;
-    }
-
-    .suggestions {
-      background: #1e1e1e;
-      color: #fff;
-      max-height: 200px;
-      overflow-y: auto;
-      border-radius: 6px;
-      margin-top: 5px;
-    }
-
-    .suggestions div {
-      padding: 0.5rem;
-      cursor: pointer;
-    }
-
-    .suggestions div:hover {
-      background-color: #2a2a2a;
-    }
-
-    .fb-float {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #1877f2;
-      color: white;
-      border-radius: 50%;
-      width: 55px;
-      height: 55px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-decoration: none;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      transition: background-color 0.3s ease, transform 0.3s ease;
-      z-index: 1000;
-    }
-
-    .fb-float:hover {
-      background-color: #0e63d1;
-      transform: scale(1.1);
-    }
-
-    .fb-float i {
-      font-size: 1.6rem;
-    }
-
-    @media (max-width: 600px) {
-      body {
-        padding: 1rem;
-      }
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
-<body>
-  <header>
-    <i class="bi bi-music-note-beamed logo"></i>
-    <h1>Lyrics Finder</h1>
-  </header>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+  <div class="text-center mb-6">
+    <h1 class="text-4xl font-bold mb-2">🎵 Lyrics Finder</h1>
+    <p class="text-gray-400">Search any song title to find its lyrics</p>
+  </div>
 
-  <form onsubmit="findLyrics(event)">
-    <input type="text" id="search" placeholder="Search artist or song..." oninput="fetchSuggestions()" autocomplete="off" />
-    <div id="suggestions" class="suggestions"></div>
-    <button type="submit">Get Lyrics</button>
-  </form>
+  <div class="w-full max-w-xl bg-white rounded-2xl shadow-lg p-6 text-black space-y-4">
+    <form id="lyricsForm" class="flex gap-2 items-center">
+      <input
+        id="title"
+        type="text"
+        placeholder="Enter song title..."
+        class="flex-1 px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-400"
+        required
+      />
+      <button type="submit" id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 flex items-center gap-2">
+        <i class="fas fa-search animate-pulse"></i> Search
+      </button>
+    </form>
 
-  <pre id="result">Mag-type ng artist o title ⬆️</pre>
+    <div id="loading" class="hidden text-center text-blue-500 font-semibold">
+      <i class="fas fa-spinner fa-spin mr-2"></i> Loading lyrics...
+    </div>
 
-  <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank" class="fb-float" title="Follow me on Facebook">
-    <i class="bi bi-facebook"></i>
-  </a>
+    <div id="lyricsResult" class="whitespace-pre-wrap font-mono text-sm bg-gray-100 p-4 rounded-lg max-h-[400px] overflow-y-auto hidden"></div>
+
+    <div id="errorMsg" class="text-red-600 font-semibold hidden"></div>
+  </div>
+
+  <div class="mt-6">
+    <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transition-all">
+      <i class="fab fa-facebook-f"></i> Follow Me
+    </a>
+  </div>
 
   <script>
-    let selected = { artist: "", title: "" };
+    const form = document.getElementById('lyricsForm');
+    const titleInput = document.getElementById('title');
+    const lyricsResult = document.getElementById('lyricsResult');
+    const errorMsg = document.getElementById('errorMsg');
+    const loading = document.getElementById('loading');
 
-    async function fetchSuggestions() {
-      const query = document.getElementById("search").value;
-      const suggestionsBox = document.getElementById("suggestions");
-      suggestionsBox.innerHTML = "";
-
-      if (query.length < 2) return;
-
-      try {
-        const res = await fetch(`/api/lyrics?search=${encodeURIComponent(query)}`);
-        const data = await res.json();
-
-        if (data.results) {
-          data.results.forEach(song => {
-            const div = document.createElement("div");
-            div.innerText = `${song.artist} - ${song.title}`;
-            div.onclick = () => {
-              document.getElementById("search").value = `${song.artist} - ${song.title}`;
-              selected = { artist: song.artist, title: song.title };
-              suggestionsBox.innerHTML = "";
-            };
-            suggestionsBox.appendChild(div);
-          });
-        }
-      } catch (e) {
-        console.error("Suggestion error:", e);
-      }
-    }
-
-    async function findLyrics(event) {
-      event.preventDefault();
-      const result = document.getElementById("result");
-      result.innerText = "🎶 Searching lyrics...";
-
-      if (!selected.artist || !selected.title) {
-        result.innerText = "⚠️ Piliin muna ang song sa suggestions.";
-        return;
-      }
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      lyricsResult.classList.add('hidden');
+      errorMsg.classList.add('hidden');
+      loading.classList.remove('hidden');
 
       try {
-        const res = await fetch(`/api/lyrics?artist=${encodeURIComponent(selected.artist)}&title=${encodeURIComponent(selected.title)}`);
+        const res = await fetch(`/api/lyrics?title=${encodeURIComponent(titleInput.value)}`);
         const data = await res.json();
+        loading.classList.add('hidden');
 
         if (data.lyrics) {
-          result.innerText = `${data.artist} - ${data.title}\n\n${data.lyrics}`;
+          lyricsResult.textContent = data.lyrics;
+          lyricsResult.classList.remove('hidden');
         } else {
-          result.innerText = "❌ Lyrics not found.";
+          errorMsg.textContent = 'Lyrics not found.';
+          errorMsg.classList.remove('hidden');
         }
-      } catch (e) {
-        result.innerText = "⚠️ Error fetching lyrics.";
+      } catch (err) {
+        loading.classList.add('hidden');
+        errorMsg.textContent = 'Something went wrong. Please try again.';
+        errorMsg.classList.remove('hidden');
       }
-    }
+    });
   </script>
 </body>
 </html>
