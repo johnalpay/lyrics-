@@ -1,9 +1,11 @@
 {
   "name": "lyrics-finder",
   "version": "1.0.0",
-  "main": "index.js",
-  "license": "MIT",
+  "main": "api/lyrics.js",
+  "scripts": {
+    "start": "node api/lyrics.js"
+  },
   "dependencies": {
-    "node-fetch": "^2.6.7"
+    "axios": "^1.6.8"
   }
 }
