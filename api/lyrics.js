@@ -1,33 +1,13 @@
-const axios = require('axios');
+import axios from 'axios';
 
-module.exports = async (req, res) => {
-  const { artist, title, search } = req.query;
-
-  if (search) {
-    try {
-      const response = await axios.get(`https://itunes.apple.com/search?term=${encodeURIComponent(search)}&entity=song&limit=10`);
-      const results = response.data.results.map(song => ({
-        artist: song.artistName,
-        title: song.trackName
-      }));
-      return res.json({ results });
-    } catch (e) {
-      return res.status(500).json({ error: "Suggestion fetch error." });
-    }
-  }
-
-  if (!artist || !title) {
-    return res.status(400).json({ error: "Missing artist or title" });
-  }
+export default async function handler(req, res) {
+  const { title } = req.query;
+  if (!title) return res.status(400).json({ error: 'Title is required' });
 
   try {
-    const response = await axios.get(`https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`);
-    return res.json({
-      artist,
-      title,
-      lyrics: response.data.lyrics
-    });
-  } catch (error) {
-    return res.status(500).json({ error: "Lyrics not found" });
+    const response = await axios.get(`https://betadash-api-swordslush-production.up.railway.app/lyrics-finder?title=${encodeURIComponent(title)}`);
+    res.status(200).json(response.data);
+  } catch (err) {
+    res.status(500).json({ error: 'Lyrics not found or API error' });
   }
-};
+}
