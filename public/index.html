@@ -1,33 +1,59 @@
 <!DOCTYPE html>
-<html lang="tl">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lyrics Finder</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #eee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+    }
+    input, button {
+      padding: 0.5rem;
+      margin: 0.5rem;
+      font-size: 1rem;
+    }
+    textarea {
+      width: 100%;
+      max-width: 600px;
+      height: 300px;
+      margin-top: 1rem;
+    }
+  </style>
 </head>
-<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-4">
-  <h1 class="text-3xl font-bold mb-6">🎵 Lyrics Finder</h1>
-  <input id="titleInput" type="text" placeholder="I-type ang title ng kanta..." class="w-full max-w-md px-4 py-2 rounded text-black mb-4">
-  <button onclick="fetchLyrics()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Hanapin</button>
-  <pre id="lyricsResult" class="bg-gray-800 p-4 mt-6 rounded max-w-2xl w-full whitespace-pre-wrap"></pre>
+<body>
+  <h1>Lyrics Finder 🎵</h1>
+  <input type="text" id="title" placeholder="Enter song title..." />
+  <button onclick="findLyrics()">Search</button>
+  <textarea id="lyrics" readonly placeholder="Lyrics will appear here..."></textarea>
 
   <script>
-    async function fetchLyrics() {
-      const title = document.getElementById('titleInput').value;
-      const result = document.getElementById('lyricsResult');
-      result.textContent = 'Loading...';
+    async function findLyrics() {
+      const title = document.getElementById('title').value.trim();
+      const lyricsBox = document.getElementById('lyrics');
+      if (!title) {
+        lyricsBox.value = 'Please enter a song title.';
+        return;
+      }
+
+      lyricsBox.value = 'Searching...';
 
       try {
         const res = await fetch(`/api/lyrics?title=${encodeURIComponent(title)}`);
         const data = await res.json();
         if (data.lyrics) {
-          result.textContent = data.lyrics;
+          lyricsBox.value = data.lyrics;
         } else {
-          result.textContent = 'Walang lyrics na nahanap.';
+          lyricsBox.value = 'Lyrics not found.';
         }
-      } catch (e) {
-        result.textContent = 'Nagkaroon ng error sa pagkuha ng lyrics.';
+      } catch (err) {
+        lyricsBox.value = 'Error fetching lyrics.';
       }
     }
   </script>
