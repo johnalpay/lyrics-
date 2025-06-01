@@ -74,16 +74,17 @@
 
   <div id="spinner" class="hidden mb-6 animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-blue-500 mx-auto"></div>
 
+  <!-- Lyrics output -->
   <pre id="output" 
        class="bg-white dark:bg-gray-100 text-gray-900 dark:text-gray-900 p-6 rounded-xl w-full max-w-lg overflow-auto whitespace-pre-wrap select-text">
 Lyrics will appear here...
   </pre>
 
-  <!-- ✅ Reset Lyrics button below the lyrics output box -->
-  <div class="mt-4 mb-6">
-    <button id="resetLyricsBtn" 
-            class="btn-animated bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-full shadow-md font-semibold focus:outline-none focus:ring-4 focus:ring-gray-500">
-      Reset Lyrics
+  <!-- ✅ Reset Lyrics Icon Button -->
+  <div class="mt-2 mb-6 flex justify-end w-full max-w-lg">
+    <button id="resetLyricsBtn" title="Clear current lyrics"
+            class="text-gray-400 hover:text-red-600 transition duration-200 focus:outline-none">
+      <i data-feather="x-circle" class="w-6 h-6"></i>
     </button>
   </div>
 
@@ -108,113 +109,112 @@ Lyrics will appear here...
     <i data-feather="heart" class="w-5 h-5 text-pink-400 animate-pulse"></i>
   </a>
 
-<script>
-  const searchBtn = document.getElementById("searchBtn");
-  const titleInput = document.getElementById("titleInput");
-  const output = document.getElementById("output");
-  const spinner = document.getElementById("spinner");
-  const copyBtn = document.getElementById("copyBtn");
-  const downloadBtn = document.getElementById("downloadBtn");
-  const historyDropdown = document.getElementById("historyDropdown");
-  const resetHistoryBtn = document.getElementById("resetHistoryBtn");
-  const resetLyricsBtn = document.getElementById("resetLyricsBtn");
+  <script>
+    const searchBtn = document.getElementById("searchBtn");
+    const titleInput = document.getElementById("titleInput");
+    const output = document.getElementById("output");
+    const spinner = document.getElementById("spinner");
+    const copyBtn = document.getElementById("copyBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const historyDropdown = document.getElementById("historyDropdown");
+    const resetHistoryBtn = document.getElementById("resetHistoryBtn");
+    const resetLyricsBtn = document.getElementById("resetLyricsBtn");
 
-  let currentLyrics = "";
-  let currentTitle = "";
+    let currentLyrics = "";
+    let currentTitle = "";
 
-  function updateHistory(title) {
-    let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
-    if (!history.includes(title)) {
-      history.unshift(title);
-      if (history.length > 10) history = history.slice(0, 10);
-      localStorage.setItem("lyricsHistory", JSON.stringify(history));
-      renderHistoryDropdown();
-    }
-  }
-
-  function renderHistoryDropdown() {
-    let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
-    historyDropdown.innerHTML = '<option value="">Choose from history...</option>';
-    history.forEach(item => {
-      const opt = document.createElement("option");
-      opt.value = item;
-      opt.textContent = item;
-      historyDropdown.appendChild(opt);
-    });
-  }
-
-  searchBtn.addEventListener("click", () => {
-    const title = titleInput.value.trim();
-    if (!title) {
-      output.textContent = "⚠️ Please enter a song title.";
-      return;
+    function updateHistory(title) {
+      let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
+      if (!history.includes(title)) {
+        history.unshift(title);
+        if (history.length > 10) history = history.slice(0, 10);
+        localStorage.setItem("lyricsHistory", JSON.stringify(history));
+        renderHistoryDropdown();
+      }
     }
 
-    output.textContent = "";
-    spinner.classList.remove("hidden");
-    currentLyrics = "";
-    currentTitle = title;
-
-    fetch(`/api/lyrics?title=${encodeURIComponent(title)}`)
-      .then(res => res.json())
-      .then(data => {
-        spinner.classList.add("hidden");
-        if (data.response && data.response.trim() !== "") {
-          output.textContent = data.response;
-          currentLyrics = data.response;
-          updateHistory(title);
-        } else {
-          output.textContent = "❌ No lyrics found.";
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        spinner.classList.add("hidden");
-        output.textContent = "⚠️ Error fetching lyrics.";
+    function renderHistoryDropdown() {
+      let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
+      historyDropdown.innerHTML = '<option value="">Choose from history...</option>';
+      history.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item;
+        opt.textContent = item;
+        historyDropdown.appendChild(opt);
       });
-  });
-
-  copyBtn.addEventListener("click", () => {
-    if (currentLyrics) {
-      navigator.clipboard.writeText(currentLyrics);
-      alert("✅ Lyrics copied!");
     }
-  });
 
-  downloadBtn.addEventListener("click", () => {
-    if (currentLyrics) {
-      const blob = new Blob([currentLyrics], { type: "text/plain" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `${currentTitle || "lyrics"}.txt`;
-      link.click();
-    }
-  });
+    searchBtn.addEventListener("click", () => {
+      const title = titleInput.value.trim();
+      if (!title) {
+        output.textContent = "⚠️ Please enter a song title.";
+        return;
+      }
 
-  resetHistoryBtn.addEventListener("click", () => {
-    if (confirm("Are you sure you want to clear your history?")) {
-      localStorage.removeItem("lyricsHistory");
-      renderHistoryDropdown();
-    }
-  });
+      output.textContent = "";
+      spinner.classList.remove("hidden");
+      currentLyrics = "";
+      currentTitle = title;
 
-  resetLyricsBtn.addEventListener("click", () => {
-    output.textContent = "Lyrics will appear here...";
-    currentLyrics = "";
-    currentTitle = "";
-  });
+      fetch(`/api/lyrics?title=${encodeURIComponent(title)}`)
+        .then(res => res.json())
+        .then(data => {
+          spinner.classList.add("hidden");
+          if (data.response && data.response.trim() !== "") {
+            output.textContent = data.response;
+            currentLyrics = data.response;
+            updateHistory(title);
+          } else {
+            output.textContent = "❌ No lyrics found.";
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          spinner.classList.add("hidden");
+          output.textContent = "⚠️ Error fetching lyrics.";
+        });
+    });
 
-  historyDropdown.addEventListener("change", () => {
-    const selected = historyDropdown.value;
-    if (selected) {
-      titleInput.value = selected;
-      searchBtn.click();
-    }
-  });
+    copyBtn.addEventListener("click", () => {
+      if (currentLyrics) {
+        navigator.clipboard.writeText(currentLyrics);
+        alert("✅ Lyrics copied!");
+      }
+    });
 
-  renderHistoryDropdown();
-  feather.replace();
-</script>
+    downloadBtn.addEventListener("click", () => {
+      if (currentLyrics) {
+        const blob = new Blob([currentLyrics], { type: "text/plain" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${currentTitle || "lyrics"}.txt`;
+        link.click();
+      }
+    });
 
+    resetHistoryBtn.addEventListener("click", () => {
+      if (confirm("Are you sure you want to clear your history?")) {
+        localStorage.removeItem("lyricsHistory");
+        renderHistoryDropdown();
+      }
+    });
+
+    resetLyricsBtn.addEventListener("click", () => {
+      output.textContent = "Lyrics will appear here...";
+      currentLyrics = "";
+      currentTitle = "";
+    });
+
+    historyDropdown.addEventListener("change", () => {
+      const selected = historyDropdown.value;
+      if (selected) {
+        titleInput.value = selected;
+        searchBtn.click();
+      }
+    });
+
+    renderHistoryDropdown();
+    feather.replace();
+  </script>
 </body>
 </html>
