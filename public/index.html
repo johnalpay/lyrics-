@@ -54,8 +54,6 @@
 </head>
 <body class="bg-gray-900 text-white dark:bg-gray-900 dark:text-white light:bg-white light:text-black min-h-screen flex flex-col items-center justify-center p-6 transition duration-300 font-sans">
 
-  <!-- Removed toggle theme button here -->
-
   <header class="flex items-center space-x-3 mb-8">
     <i data-feather="music" class="text-4xl text-blue-500"></i>
     <h1 class="text-4xl font-extrabold tracking-wide select-none">Lyrics Finder</h1>
@@ -64,10 +62,16 @@
   <input id="titleInput" type="text" placeholder="Enter song title" 
          class="w-full max-w-lg p-4 text-gray-900 dark:text-gray-900 dark:bg-gray-100 bg-white placeholder-gray-400 mb-4 font-semibold focus:outline-none focus:ring-4 focus:ring-blue-400" />
 
-  <select id="historyDropdown" 
-          class="w-full max-w-lg p-3 mb-6 bg-white dark:bg-gray-100 text-gray-900 font-semibold focus:outline-none focus:ring-4 focus:ring-blue-400 rounded shadow-md">
-    <option value="">Choose from history...</option>
-  </select>
+  <div class="flex items-center mb-6">
+    <select id="historyDropdown" 
+            class="flex-grow p-3 bg-white dark:bg-gray-100 text-gray-900 font-semibold focus:outline-none focus:ring-4 focus:ring-blue-400 rounded shadow-md">
+      <option value="">Choose from history...</option>
+    </select>
+    <button id="resetHistoryBtn" 
+            class="btn-animated bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full shadow-md font-semibold focus:outline-none focus:ring-4 focus:ring-red-400 ml-4">
+      Reset History
+    </button>
+  </div>
 
   <button id="searchBtn" 
           class="btn-animated bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-full mb-6 shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500 flex items-center justify-center space-x-2">
@@ -111,6 +115,7 @@ Lyrics will appear here...
   const copyBtn = document.getElementById("copyBtn");
   const downloadBtn = document.getElementById("downloadBtn");
   const historyDropdown = document.getElementById("historyDropdown");
+  const resetHistoryBtn = document.getElementById("resetHistoryBtn");
 
   let currentLyrics = "";
   let currentTitle = "";
@@ -184,7 +189,12 @@ Lyrics will appear here...
     }
   });
 
-  // Removed themeToggle event listener
+  resetHistoryBtn.addEventListener("click", () => {
+    if (confirm("Are you sure you want to clear your history?")) {
+      localStorage.removeItem("lyricsHistory");
+      renderHistoryDropdown();
+    }
+  });
 
   historyDropdown.addEventListener("change", () => {
     const selected = historyDropdown.value;
