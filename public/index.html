@@ -66,30 +66,32 @@
       font-size: 1rem;
     }
 
-    .follow {
-      margin-top: 2rem;
-      text-align: center;
-    }
-
-    .follow a {
-      display: inline-flex;
-      align-items: center;
-      text-decoration: none;
-      color: white;
-      padding: 0.6rem 1rem;
-      border-radius: 8px;
+    /* Floating Facebook button */
+    .fb-float {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
       background-color: #1877f2;
-      transition: background 0.3s ease;
-      font-weight: 500;
+      color: white;
+      border-radius: 50%;
+      width: 55px;
+      height: 55px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      z-index: 1000;
     }
 
-    .follow a:hover {
+    .fb-float:hover {
       background-color: #0e63d1;
+      transform: scale(1.1);
     }
 
-    .follow i {
-      margin-right: 0.5rem;
-      font-size: 1.2rem;
+    .fb-float i {
+      font-size: 1.6rem;
     }
 
     @media (max-width: 600px) {
@@ -113,11 +115,10 @@
 
   <pre id="result">Enter artist and title above ⬆️</pre>
 
-  <div class="follow">
-    <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank">
-      <i class="bi bi-facebook"></i> Follow me on Facebook
-    </a>
-  </div>
+  <!-- Floating Facebook Follow Button -->
+  <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank" class="fb-float" title="Follow me on Facebook">
+    <i class="bi bi-facebook"></i>
+  </a>
 
   <script>
     async function findLyrics(event) {
