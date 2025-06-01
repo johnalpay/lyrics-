@@ -66,6 +66,32 @@
       font-size: 1rem;
     }
 
+    .follow {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .follow a {
+      display: inline-flex;
+      align-items: center;
+      text-decoration: none;
+      color: white;
+      padding: 0.6rem 1rem;
+      border-radius: 8px;
+      background-color: #1877f2;
+      transition: background 0.3s ease;
+      font-weight: 500;
+    }
+
+    .follow a:hover {
+      background-color: #0e63d1;
+    }
+
+    .follow i {
+      margin-right: 0.5rem;
+      font-size: 1.2rem;
+    }
+
     @media (max-width: 600px) {
       body {
         padding: 1rem;
@@ -86,6 +112,12 @@
   </form>
 
   <pre id="result">Enter artist and title above ⬆️</pre>
+
+  <div class="follow">
+    <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank">
+      <i class="bi bi-facebook"></i> Follow me on Facebook
+    </a>
+  </div>
 
   <script>
     async function findLyrics(event) {
