@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Lyrics Finder 🎵</title>
+  <title>Lyrics Finder</title>
   <script src="https://unpkg.com/feather-icons"></script>
   <script>
     if (localStorage.theme === 'light') {
@@ -14,151 +14,207 @@
     }
   </script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-</head>
-<body class="bg-gray-900 text-white dark:bg-gray-900 dark:text-white light:bg-white light:text-black min-h-screen flex flex-col items-center justify-center p-4 transition duration-300">
+  <style>
+    /* Button animation */
+    .btn-animated {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .btn-animated:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5);
+    }
 
-  <div class="absolute top-4 right-4 space-x-2">
-    <button id="toggleTheme" class="bg-gray-800 dark:bg-gray-200 text-white dark:text-black px-3 py-1 rounded shadow">
+    /* Output box */
+    #output {
+      min-height: 220px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      border-radius: 12px;
+    }
+
+    /* Input & dropdown */
+    input, select {
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      border-radius: 10px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      padding-left: 14px;
+    }
+
+    /* Spinner custom */
+    #spinner {
+      border-top-color: #3b82f6; /* blue */
+      border-bottom-color: #3b82f6;
+      border-left-color: transparent;
+      border-right-color: transparent;
+      border-width: 3px;
+    }
+  </style>
+</head>
+<body class="bg-gray-900 text-white dark:bg-gray-900 dark:text-white light:bg-white light:text-black min-h-screen flex flex-col items-center justify-center p-6 transition duration-300 font-sans">
+
+  <div class="absolute top-5 right-5 space-x-2">
+    <button id="toggleTheme" 
+            class="btn-animated bg-gray-800 dark:bg-gray-200 text-white dark:text-black px-4 py-2 rounded shadow-md font-semibold select-none">
+      <i data-feather="sun" class="inline-block mr-1"></i>
       Toggle Theme
     </button>
   </div>
 
-  <h1 class="text-3xl font-bold mb-6 text-center">🎶 Lyrics Finder</h1>
+  <header class="flex items-center space-x-3 mb-8">
+    <i data-feather="music" class="text-4xl text-blue-500"></i>
+    <h1 class="text-4xl font-extrabold tracking-wide select-none">Lyrics Finder</h1>
+  </header>
 
   <input id="titleInput" type="text" placeholder="Enter song title" 
-         class="w-full max-w-md p-3 rounded text-black mb-2" />
+         class="w-full max-w-lg p-4 text-gray-900 dark:text-gray-900 dark:bg-gray-100 bg-white placeholder-gray-400 mb-4 font-semibold focus:outline-none focus:ring-4 focus:ring-blue-400" />
 
-  <select id="historyDropdown" class="w-full max-w-md p-2 mb-4 rounded text-black">
-    <option value="">🔁 Choose from history...</option>
+  <select id="historyDropdown" 
+          class="w-full max-w-lg p-3 mb-6 bg-white dark:bg-gray-100 text-gray-900 font-semibold focus:outline-none focus:ring-4 focus:ring-blue-400 rounded shadow-md">
+    <option value="">Choose from history...</option>
   </select>
 
   <button id="searchBtn" 
-          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 transition duration-200">
-    Find Lyrics
+          class="btn-animated bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-full mb-6 shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500 flex items-center justify-center space-x-2">
+    <i data-feather="search" class="w-5 h-5"></i>
+    <span>Find Lyrics</span>
   </button>
 
-  <div id="spinner" class="hidden mb-4 animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+  <div id="spinner" class="hidden mb-6 animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-blue-500 mx-auto"></div>
 
-  <pre id="output" class="bg-white dark:bg-gray-100 text-black p-4 rounded w-full max-w-md overflow-auto mb-4 whitespace-pre-wrap">
+  <pre id="output" 
+       class="bg-white dark:bg-gray-100 text-gray-900 dark:text-gray-900 p-6 rounded-xl w-full max-w-lg overflow-auto whitespace-pre-wrap select-text">
 Lyrics will appear here...
   </pre>
 
-  <div class="flex gap-4 mb-6">
-    <button id="copyBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">📋 Copy</button>
-    <button id="downloadBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">⬇️ Download</button>
+  <div class="flex gap-6 mb-8 justify-center">
+    <button id="copyBtn" 
+            class="btn-animated bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-md flex items-center space-x-2 font-semibold focus:outline-none focus:ring-4 focus:ring-green-400">
+      <i data-feather="clipboard" class="w-5 h-5"></i>
+      <span>Copy</span>
+    </button>
+
+    <button id="downloadBtn" 
+            class="btn-animated bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-full shadow-md flex items-center space-x-2 font-semibold focus:outline-none focus:ring-4 focus:ring-yellow-400">
+      <i data-feather="download" class="w-5 h-5"></i>
+      <span>Download</span>
+    </button>
   </div>
 
   <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank"
-     class="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-full transition duration-200 shadow-md">
-    <i data-feather="facebook"></i>
-    Follow Sxe Ci 💖
+     class="btn-animated flex items-center gap-3 bg-pink-600 hover:bg-pink-700 text-white font-extrabold py-3 px-8 rounded-full transition duration-200 shadow-lg select-none focus:outline-none focus:ring-4 focus:ring-pink-400">
+    <i data-feather="facebook" class="w-6 h-6"></i>
+    <span>Follow Sxe Ci</span>
+    <i data-feather="heart" class="w-5 h-5 text-pink-400 animate-pulse"></i>
   </a>
 
-  <script>
-    const searchBtn = document.getElementById("searchBtn");
-    const titleInput = document.getElementById("titleInput");
-    const output = document.getElementById("output");
-    const spinner = document.getElementById("spinner");
-    const copyBtn = document.getElementById("copyBtn");
-    const downloadBtn = document.getElementById("downloadBtn");
-    const themeToggle = document.getElementById("toggleTheme");
-    const historyDropdown = document.getElementById("historyDropdown");
+<script>
+  const searchBtn = document.getElementById("searchBtn");
+  const titleInput = document.getElementById("titleInput");
+  const output = document.getElementById("output");
+  const spinner = document.getElementById("spinner");
+  const copyBtn = document.getElementById("copyBtn");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const themeToggle = document.getElementById("toggleTheme");
+  const historyDropdown = document.getElementById("historyDropdown");
 
-    let currentLyrics = "";
-    let currentTitle = "";
+  let currentLyrics = "";
+  let currentTitle = "";
 
-    function updateHistory(title) {
-      let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
-      if (!history.includes(title)) {
-        history.unshift(title);
-        if (history.length > 10) history = history.slice(0, 10);
-        localStorage.setItem("lyricsHistory", JSON.stringify(history));
-        renderHistoryDropdown();
-      }
+  function updateHistory(title) {
+    let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
+    if (!history.includes(title)) {
+      history.unshift(title);
+      if (history.length > 10) history = history.slice(0, 10);
+      localStorage.setItem("lyricsHistory", JSON.stringify(history));
+      renderHistoryDropdown();
+    }
+  }
+
+  function renderHistoryDropdown() {
+    let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
+    historyDropdown.innerHTML = '<option value="">Choose from history...</option>';
+    history.forEach(item => {
+      const opt = document.createElement("option");
+      opt.value = item;
+      opt.textContent = item;
+      historyDropdown.appendChild(opt);
+    });
+  }
+
+  searchBtn.addEventListener("click", () => {
+    const title = titleInput.value.trim();
+    if (!title) {
+      output.textContent = "⚠️ Please enter a song title.";
+      return;
     }
 
-    function renderHistoryDropdown() {
-      let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
-      historyDropdown.innerHTML = '<option value="">🔁 Choose from history...</option>';
-      history.forEach(item => {
-        const opt = document.createElement("option");
-        opt.value = item;
-        opt.textContent = item;
-        historyDropdown.appendChild(opt);
+    output.textContent = "";
+    spinner.classList.remove("hidden");
+    currentLyrics = "";
+    currentTitle = title;
+
+    fetch(`/api/lyrics?title=${encodeURIComponent(title)}`)
+      .then(res => res.json())
+      .then(data => {
+        spinner.classList.add("hidden");
+        if (data.response && data.response.trim() !== "") {
+          output.textContent = data.response;
+          currentLyrics = data.response;
+          updateHistory(title);
+        } else {
+          output.textContent = "❌ No lyrics found.";
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        spinner.classList.add("hidden");
+        output.textContent = "⚠️ Error fetching lyrics.";
       });
+  });
+
+  copyBtn.addEventListener("click", () => {
+    if (currentLyrics) {
+      navigator.clipboard.writeText(currentLyrics);
+      alert("✅ Lyrics copied!");
     }
+  });
 
-    searchBtn.addEventListener("click", () => {
-      const title = titleInput.value.trim();
-      if (!title) {
-        output.textContent = "❗ Please enter a song title.";
-        return;
-      }
+  downloadBtn.addEventListener("click", () => {
+    if (currentLyrics) {
+      const blob = new Blob([currentLyrics], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${currentTitle || "lyrics"}.txt`;
+      link.click();
+    }
+  });
 
-      output.textContent = "";
-      spinner.classList.remove("hidden");
-      currentLyrics = "";
-      currentTitle = title;
+  themeToggle.addEventListener("click", () => {
+    const html = document.documentElement;
+    if (html.classList.contains("light")) {
+      html.classList.remove("light");
+      html.classList.add("dark");
+      localStorage.theme = 'dark';
+    } else {
+      html.classList.remove("dark");
+      html.classList.add("light");
+      localStorage.theme = 'light';
+    }
+  });
 
-      fetch(`/api/lyrics?title=${encodeURIComponent(title)}`)
-        .then(res => res.json())
-        .then(data => {
-          spinner.classList.add("hidden");
-          if (data.response && data.response.trim() !== "") {
-            output.textContent = data.response;
-            currentLyrics = data.response;
-            updateHistory(title);
-          } else {
-            output.textContent = "❌ No lyrics found.";
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          spinner.classList.add("hidden");
-          output.textContent = "⚠️ Error fetching lyrics.";
-        });
-    });
+  historyDropdown.addEventListener("change", () => {
+    const selected = historyDropdown.value;
+    if (selected) {
+      titleInput.value = selected;
+      searchBtn.click();
+    }
+  });
 
-    copyBtn.addEventListener("click", () => {
-      if (currentLyrics) {
-        navigator.clipboard.writeText(currentLyrics);
-        alert("✅ Lyrics copied!");
-      }
-    });
+  renderHistoryDropdown();
+  feather.replace();
+</script>
 
-    downloadBtn.addEventListener("click", () => {
-      if (currentLyrics) {
-        const blob = new Blob([currentLyrics], { type: "text/plain" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `${currentTitle || "lyrics"}.txt`;
-        link.click();
-      }
-    });
-
-    themeToggle.addEventListener("click", () => {
-      const html = document.documentElement;
-      if (html.classList.contains("light")) {
-        html.classList.remove("light");
-        html.classList.add("dark");
-        localStorage.theme = 'dark';
-      } else {
-        html.classList.remove("dark");
-        html.classList.add("light");
-        localStorage.theme = 'light';
-      }
-    });
-
-    historyDropdown.addEventListener("change", () => {
-      const selected = historyDropdown.value;
-      if (selected) {
-        titleInput.value = selected;
-        searchBtn.click();
-      }
-    });
-
-    renderHistoryDropdown();
-    feather.replace(); // Feather icons
-  </script>
 </body>
 </html>
