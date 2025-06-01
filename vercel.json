@@ -1,6 +1,11 @@
 {
-  "cleanUrls": true,
-  "rewrites": [
-    { "source": "/", "destination": "/public/index.html" }
+  "version": 2,
+  "builds": [
+    { "src": "api/lyrics.js", "use": "@vercel/node" },
+    { "src": "public/index.html", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/lyrics", "dest": "/api/lyrics.js" },
+    { "src": "/(.*)", "dest": "/public/index.html" }
   ]
 }
