@@ -5,40 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lyrics Finder</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 </head>
 <body class="flex flex-col items-center justify-center min-h-screen p-4">
+
   <div class="text-center mb-6">
     <h1 class="text-4xl font-bold mb-2">🎵 Lyrics Finder</h1>
-    <p class="text-gray-400">Search any song title to find its lyrics</p>
+    <p class="text-gray-400">Enter the song title to fetch lyrics</p>
   </div>
 
-  <div class="w-full max-w-xl bg-white rounded-2xl shadow-lg p-6 text-black space-y-4">
-    <form id="lyricsForm" class="flex gap-2 items-center">
+  <div class="bg-white text-black rounded-2xl shadow-xl p-6 w-full max-w-2xl space-y-4">
+    <form id="lyricsForm" class="flex gap-2">
       <input
-        id="title"
         type="text"
-        placeholder="Enter song title..."
-        class="flex-1 px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-400"
+        id="title"
+        placeholder="Type song title..."
+        class="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
         required
       />
-      <button type="submit" id="searchBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-300 flex items-center gap-2">
-        <i class="fas fa-search animate-pulse"></i> Search
+      <button
+        type="submit"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-semibold transition-all duration-300 flex items-center gap-2"
+      >
+        <i class="fas fa-search animate-bounce"></i> Search
       </button>
     </form>
 
-    <div id="loading" class="hidden text-center text-blue-500 font-semibold">
-      <i class="fas fa-spinner fa-spin mr-2"></i> Loading lyrics...
+    <div id="loading" class="hidden text-blue-600 font-semibold text-center">
+      <i class="fas fa-spinner fa-spin"></i> Fetching lyrics...
     </div>
 
-    <div id="lyricsResult" class="whitespace-pre-wrap font-mono text-sm bg-gray-100 p-4 rounded-lg max-h-[400px] overflow-y-auto hidden"></div>
+    <div id="lyricsResult" class="hidden whitespace-pre-wrap font-mono text-sm bg-gray-100 p-4 rounded-lg max-h-[400px] overflow-y-auto"></div>
 
-    <div id="errorMsg" class="text-red-600 font-semibold hidden"></div>
+    <div id="errorMsg" class="hidden text-red-600 font-semibold text-center"></div>
   </div>
 
   <div class="mt-6">
-    <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full shadow hover:bg-blue-700 transition-all">
-      <i class="fab fa-facebook-f"></i> Follow Me
+    <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-full shadow transition-all">
+      <i class="fab fa-facebook-f"></i> Follow on Facebook
     </a>
   </div>
 
@@ -56,20 +60,20 @@
       loading.classList.remove('hidden');
 
       try {
-        const res = await fetch(`/api/lyrics?title=${encodeURIComponent(titleInput.value)}`);
-        const data = await res.json();
+        const response = await fetch(`/api/lyrics?title=${encodeURIComponent(titleInput.value)}`);
+        const data = await response.json();
         loading.classList.add('hidden');
 
         if (data.lyrics) {
           lyricsResult.textContent = data.lyrics;
           lyricsResult.classList.remove('hidden');
         } else {
-          errorMsg.textContent = 'Lyrics not found.';
+          errorMsg.textContent = "Lyrics not found.";
           errorMsg.classList.remove('hidden');
         }
       } catch (err) {
         loading.classList.add('hidden');
-        errorMsg.textContent = 'Something went wrong. Please try again.';
+        errorMsg.textContent = "Error fetching lyrics. Try again later.";
         errorMsg.classList.remove('hidden');
       }
     });
