@@ -1,6 +1,6 @@
-const axios = require('axios');
+import axios from 'axios';
 
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   const { title } = req.query;
 
   if (!title) {
@@ -11,6 +11,7 @@ module.exports = async (req, res) => {
     const response = await axios.get(`https://betadash-api-swordslush-production.up.railway.app/lyrics-finder?title=${encodeURIComponent(title)}`);
     res.status(200).json(response.data);
   } catch (err) {
+    console.error('Lyrics fetch error:', err.message || err);
     res.status(500).json({ error: 'Failed to fetch lyrics' });
   }
-};
+}
