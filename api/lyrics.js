@@ -1,17 +1,17 @@
-import axios from 'axios';
+const axios = require('axios');
 
 export default async function handler(req, res) {
   const { title } = req.query;
 
   if (!title) {
-    return res.status(400).json({ error: 'Missing title' });
+    return res.status(400).json({ error: 'Missing title parameter' });
   }
 
   try {
     const response = await axios.get(`https://betadash-api-swordslush-production.up.railway.app/lyrics-finder?title=${encodeURIComponent(title)}`);
     res.status(200).json(response.data);
   } catch (err) {
-    console.error('Lyrics fetch error:', err.message || err);
+    console.error(err.response?.data || err.message);
     res.status(500).json({ error: 'Failed to fetch lyrics' });
   }
 }
