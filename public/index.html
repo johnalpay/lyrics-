@@ -15,7 +15,6 @@
   </script>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <style>
-    /* Button animation */
     .btn-animated {
       transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
@@ -23,16 +22,12 @@
       transform: scale(1.05);
       box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5);
     }
-
-    /* Output box */
     #output {
       min-height: 220px;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
       border-radius: 12px;
     }
-
-    /* Input & dropdown */
     input, select {
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       border-radius: 10px;
@@ -41,10 +36,8 @@
       font-weight: 600;
       padding-left: 14px;
     }
-
-    /* Spinner custom */
     #spinner {
-      border-top-color: #3b82f6; /* blue */
+      border-top-color: #3b82f6;
       border-bottom-color: #3b82f6;
       border-left-color: transparent;
       border-right-color: transparent;
@@ -62,14 +55,18 @@
   <input id="titleInput" type="text" placeholder="Enter song title" 
          class="w-full max-w-lg p-4 text-gray-900 dark:text-gray-900 dark:bg-gray-100 bg-white placeholder-gray-400 mb-4 font-semibold focus:outline-none focus:ring-4 focus:ring-blue-400" />
 
-  <div class="flex items-center mb-6">
+  <div class="flex items-center mb-6 space-x-4">
     <select id="historyDropdown" 
             class="flex-grow p-3 bg-white dark:bg-gray-100 text-gray-900 font-semibold focus:outline-none focus:ring-4 focus:ring-blue-400 rounded shadow-md">
       <option value="">Choose from history...</option>
     </select>
     <button id="resetHistoryBtn" 
-            class="btn-animated bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full shadow-md font-semibold focus:outline-none focus:ring-4 focus:ring-red-400 ml-4">
+            class="btn-animated bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full shadow-md font-semibold focus:outline-none focus:ring-4 focus:ring-red-400">
       Reset History
+    </button>
+    <button id="resetLyricsBtn" 
+            class="btn-animated bg-gray-600 hover:bg-gray-700 text-white px-6 py-3 rounded-full shadow-md font-semibold focus:outline-none focus:ring-4 focus:ring-gray-500">
+      Reset Lyrics
     </button>
   </div>
 
@@ -107,6 +104,12 @@ Lyrics will appear here...
     <i data-feather="heart" class="w-5 h-5 text-pink-400 animate-pulse"></i>
   </a>
 
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-2 opacity-0 pointer-events-none transition-opacity duration-300">
+    <i data-feather="check-circle" class="w-5 h-5"></i>
+    <span>Lyrics copied!</span>
+  </div>
+
 <script>
   const searchBtn = document.getElementById("searchBtn");
   const titleInput = document.getElementById("titleInput");
@@ -116,6 +119,8 @@ Lyrics will appear here...
   const downloadBtn = document.getElementById("downloadBtn");
   const historyDropdown = document.getElementById("historyDropdown");
   const resetHistoryBtn = document.getElementById("resetHistoryBtn");
+  const resetLyricsBtn = document.getElementById("resetLyricsBtn");
+  const toast = document.getElementById("toast");
 
   let currentLyrics = "";
   let currentTitle = "";
@@ -174,8 +179,14 @@ Lyrics will appear here...
 
   copyBtn.addEventListener("click", () => {
     if (currentLyrics) {
-      navigator.clipboard.writeText(currentLyrics);
-      alert("✅ Lyrics copied!");
+      navigator.clipboard.writeText(currentLyrics).then(() => {
+        toast.classList.remove("opacity-0", "pointer-events-none");
+        toast.classList.add("opacity-100");
+        setTimeout(() => {
+          toast.classList.add("opacity-0");
+          toast.classList.remove("opacity-100");
+        }, 2000);
+      });
     }
   });
 
@@ -194,6 +205,12 @@ Lyrics will appear here...
       localStorage.removeItem("lyricsHistory");
       renderHistoryDropdown();
     }
+  });
+
+  resetLyricsBtn.addEventListener("click", () => {
+    output.textContent = "Lyrics will appear here...";
+    currentLyrics = "";
+    currentTitle = "";
   });
 
   historyDropdown.addEventListener("change", () => {
