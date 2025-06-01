@@ -22,12 +22,14 @@
       transform: scale(1.05);
       box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5);
     }
+
     #output {
       min-height: 220px;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       box-shadow: 0 10px 25px rgba(0,0,0,0.5);
       border-radius: 12px;
     }
+
     input, select {
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       border-radius: 10px;
@@ -36,12 +38,23 @@
       font-weight: 600;
       padding-left: 14px;
     }
+
     #spinner {
       border-top-color: #3b82f6;
       border-bottom-color: #3b82f6;
       border-left-color: transparent;
       border-right-color: transparent;
       border-width: 3px;
+    }
+
+    .fade-reset {
+      animation: fadeReset 0.6s ease-in-out;
+    }
+
+    @keyframes fadeReset {
+      0% { opacity: 0.3; transform: scale(0.95); }
+      50% { opacity: 1; transform: scale(1.05); }
+      100% { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
@@ -52,21 +65,21 @@
     <h1 class="text-4xl font-extrabold tracking-wide select-none">Lyrics Finder</h1>
   </header>
 
-  <input id="titleInput" type="text" placeholder="Enter song title" 
+  <input id="titleInput" type="text" placeholder="Enter song title"
          class="w-full max-w-lg p-4 text-gray-900 dark:text-gray-900 dark:bg-gray-100 bg-white placeholder-gray-400 mb-4 font-semibold focus:outline-none focus:ring-4 focus:ring-blue-400" />
 
   <div class="flex items-center mb-6 space-x-4">
-    <select id="historyDropdown" 
+    <select id="historyDropdown"
             class="flex-grow p-3 bg-white dark:bg-gray-100 text-gray-900 font-semibold focus:outline-none focus:ring-4 focus:ring-blue-400 rounded shadow-md">
       <option value="">Choose from history...</option>
     </select>
-    <button id="resetHistoryBtn" 
+    <button id="resetHistoryBtn"
             class="btn-animated bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full shadow-md font-semibold focus:outline-none focus:ring-4 focus:ring-red-400">
       Reset History
     </button>
   </div>
 
-  <button id="searchBtn" 
+  <button id="searchBtn"
           class="btn-animated bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-10 rounded-full mb-6 shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-500 flex items-center justify-center space-x-2">
     <i data-feather="search" class="w-5 h-5"></i>
     <span>Find Lyrics</span>
@@ -74,28 +87,26 @@
 
   <div id="spinner" class="hidden mb-6 animate-spin rounded-full h-10 w-10 border-t-4 border-b-4 border-blue-500 mx-auto"></div>
 
-  <!-- Lyrics output -->
-  <pre id="output" 
-       class="bg-white dark:bg-gray-100 text-gray-900 dark:text-gray-900 p-6 rounded-xl w-full max-w-lg overflow-auto whitespace-pre-wrap select-text">
+  <div class="relative w-full max-w-lg">
+    <pre id="output"
+         class="bg-white dark:bg-gray-100 text-gray-900 dark:text-gray-900 p-6 rounded-xl overflow-auto whitespace-pre-wrap select-text transition-all duration-500">
 Lyrics will appear here...
-  </pre>
-
-  <!-- ✅ Reset Lyrics Icon Button -->
-  <div class="mt-2 mb-6 flex justify-end w-full max-w-lg">
-    <button id="resetLyricsBtn" title="Clear current lyrics"
-            class="text-gray-400 hover:text-red-600 transition duration-200 focus:outline-none">
-      <i data-feather="x-circle" class="w-6 h-6"></i>
+    </pre>
+    <button id="resetLyricsBtn"
+            class="absolute top-2 right-2 bg-gray-800 text-white rounded-full p-2 shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all"
+            title="Reset Lyrics">
+      <i data-feather="x-circle" class="w-5 h-5"></i>
     </button>
   </div>
 
-  <div class="flex gap-6 mb-8 justify-center">
-    <button id="copyBtn" 
+  <div class="flex gap-6 mb-8 justify-center mt-6">
+    <button id="copyBtn"
             class="btn-animated bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-md flex items-center space-x-2 font-semibold focus:outline-none focus:ring-4 focus:ring-green-400">
       <i data-feather="clipboard" class="w-5 h-5"></i>
       <span>Copy</span>
     </button>
 
-    <button id="downloadBtn" 
+    <button id="downloadBtn"
             class="btn-animated bg-yellow-500 hover:bg-yellow-600 text-white px-6 py-3 rounded-full shadow-md flex items-center space-x-2 font-semibold focus:outline-none focus:ring-4 focus:ring-yellow-400">
       <i data-feather="download" class="w-5 h-5"></i>
       <span>Download</span>
@@ -103,118 +114,128 @@ Lyrics will appear here...
   </div>
 
   <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank"
-     class="btn-animated flex items-center gap-3 bg-pink-600 hover:bg-pink-700 text-white font-extrabold py-3 px-8 rounded-full transition duration-200 shadow-lg select-none focus:outline-none focus:ring-4 focus:ring-pink-400">
+     class="btn-animated flex items-center gap-3 bg-pink-600 hover:bg-pink-700 text-white font-extrabold py-3 px-8 rounded-full transition duration-200 shadow-lg select-none focus:outline-none focus:ring-4 focus:ring-pink-400 mb-8">
     <i data-feather="facebook" class="w-6 h-6"></i>
     <span>Follow Sxe Ci</span>
     <i data-feather="heart" class="w-5 h-5 text-pink-400 animate-pulse"></i>
   </a>
 
-  <script>
-    const searchBtn = document.getElementById("searchBtn");
-    const titleInput = document.getElementById("titleInput");
-    const output = document.getElementById("output");
-    const spinner = document.getElementById("spinner");
-    const copyBtn = document.getElementById("copyBtn");
-    const downloadBtn = document.getElementById("downloadBtn");
-    const historyDropdown = document.getElementById("historyDropdown");
-    const resetHistoryBtn = document.getElementById("resetHistoryBtn");
-    const resetLyricsBtn = document.getElementById("resetLyricsBtn");
+  <!-- 🎵 Singing Sticker (Floating) -->
+  <div class="fixed bottom-4 right-4 z-50">
+    <img src="https://media.giphy.com/media/3o6Zt481isNVuQI1l6/giphy.gif"
+         alt="Singing Sticker"
+         class="w-20 h-20 rounded-full shadow-lg border-4 border-white dark:border-gray-800 animate-bounce duration-1000 ease-in-out" />
+  </div>
 
-    let currentLyrics = "";
-    let currentTitle = "";
+<script>
+  const searchBtn = document.getElementById("searchBtn");
+  const titleInput = document.getElementById("titleInput");
+  const output = document.getElementById("output");
+  const spinner = document.getElementById("spinner");
+  const copyBtn = document.getElementById("copyBtn");
+  const downloadBtn = document.getElementById("downloadBtn");
+  const historyDropdown = document.getElementById("historyDropdown");
+  const resetHistoryBtn = document.getElementById("resetHistoryBtn");
+  const resetLyricsBtn = document.getElementById("resetLyricsBtn");
 
-    function updateHistory(title) {
-      let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
-      if (!history.includes(title)) {
-        history.unshift(title);
-        if (history.length > 10) history = history.slice(0, 10);
-        localStorage.setItem("lyricsHistory", JSON.stringify(history));
-        renderHistoryDropdown();
-      }
+  let currentLyrics = "";
+  let currentTitle = "";
+
+  function updateHistory(title) {
+    let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
+    if (!history.includes(title)) {
+      history.unshift(title);
+      if (history.length > 10) history = history.slice(0, 10);
+      localStorage.setItem("lyricsHistory", JSON.stringify(history));
+      renderHistoryDropdown();
+    }
+  }
+
+  function renderHistoryDropdown() {
+    let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
+    historyDropdown.innerHTML = '<option value="">Choose from history...</option>';
+    history.forEach(item => {
+      const opt = document.createElement("option");
+      opt.value = item;
+      opt.textContent = item;
+      historyDropdown.appendChild(opt);
+    });
+  }
+
+  searchBtn.addEventListener("click", () => {
+    const title = titleInput.value.trim();
+    if (!title) {
+      output.textContent = "⚠️ Please enter a song title.";
+      return;
     }
 
-    function renderHistoryDropdown() {
-      let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
-      historyDropdown.innerHTML = '<option value="">Choose from history...</option>';
-      history.forEach(item => {
-        const opt = document.createElement("option");
-        opt.value = item;
-        opt.textContent = item;
-        historyDropdown.appendChild(opt);
+    output.textContent = "";
+    spinner.classList.remove("hidden");
+    currentLyrics = "";
+    currentTitle = title;
+
+    fetch(`/api/lyrics?title=${encodeURIComponent(title)}`)
+      .then(res => res.json())
+      .then(data => {
+        spinner.classList.add("hidden");
+        if (data.response && data.response.trim() !== "") {
+          output.textContent = data.response;
+          currentLyrics = data.response;
+          updateHistory(title);
+        } else {
+          output.textContent = "❌ No lyrics found.";
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        spinner.classList.add("hidden");
+        output.textContent = "⚠️ Error fetching lyrics.";
       });
+  });
+
+  copyBtn.addEventListener("click", () => {
+    if (currentLyrics) {
+      navigator.clipboard.writeText(currentLyrics);
+      alert("✅ Lyrics copied!");
     }
+  });
 
-    searchBtn.addEventListener("click", () => {
-      const title = titleInput.value.trim();
-      if (!title) {
-        output.textContent = "⚠️ Please enter a song title.";
-        return;
-      }
+  downloadBtn.addEventListener("click", () => {
+    if (currentLyrics) {
+      const blob = new Blob([currentLyrics], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `${currentTitle || "lyrics"}.txt`;
+      link.click();
+    }
+  });
 
-      output.textContent = "";
-      spinner.classList.remove("hidden");
-      currentLyrics = "";
-      currentTitle = title;
+  resetHistoryBtn.addEventListener("click", () => {
+    if (confirm("Are you sure you want to clear your history?")) {
+      localStorage.removeItem("lyricsHistory");
+      renderHistoryDropdown();
+    }
+  });
 
-      fetch(`/api/lyrics?title=${encodeURIComponent(title)}`)
-        .then(res => res.json())
-        .then(data => {
-          spinner.classList.add("hidden");
-          if (data.response && data.response.trim() !== "") {
-            output.textContent = data.response;
-            currentLyrics = data.response;
-            updateHistory(title);
-          } else {
-            output.textContent = "❌ No lyrics found.";
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          spinner.classList.add("hidden");
-          output.textContent = "⚠️ Error fetching lyrics.";
-        });
-    });
+  resetLyricsBtn.addEventListener("click", () => {
+    output.classList.add("fade-reset");
+    setTimeout(() => output.classList.remove("fade-reset"), 600);
+    output.textContent = "Lyrics will appear here...";
+    currentLyrics = "";
+    currentTitle = "";
+  });
 
-    copyBtn.addEventListener("click", () => {
-      if (currentLyrics) {
-        navigator.clipboard.writeText(currentLyrics);
-        alert("✅ Lyrics copied!");
-      }
-    });
+  historyDropdown.addEventListener("change", () => {
+    const selected = historyDropdown.value;
+    if (selected) {
+      titleInput.value = selected;
+      searchBtn.click();
+    }
+  });
 
-    downloadBtn.addEventListener("click", () => {
-      if (currentLyrics) {
-        const blob = new Blob([currentLyrics], { type: "text/plain" });
-        const link = document.createElement("a");
-        link.href = URL.createObjectURL(blob);
-        link.download = `${currentTitle || "lyrics"}.txt`;
-        link.click();
-      }
-    });
+  renderHistoryDropdown();
+  feather.replace();
+</script>
 
-    resetHistoryBtn.addEventListener("click", () => {
-      if (confirm("Are you sure you want to clear your history?")) {
-        localStorage.removeItem("lyricsHistory");
-        renderHistoryDropdown();
-      }
-    });
-
-    resetLyricsBtn.addEventListener("click", () => {
-      output.textContent = "Lyrics will appear here...";
-      currentLyrics = "";
-      currentTitle = "";
-    });
-
-    historyDropdown.addEventListener("change", () => {
-      const selected = historyDropdown.value;
-      if (selected) {
-        titleInput.value = selected;
-        searchBtn.click();
-      }
-    });
-
-    renderHistoryDropdown();
-    feather.replace();
-  </script>
 </body>
 </html>
