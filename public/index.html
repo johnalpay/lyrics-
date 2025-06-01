@@ -1,91 +1,164 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="transition duration-300">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lyrics Finder</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 30px auto;
-      padding: 0 20px;
-      background: #f9f9f9;
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lyrics Finder 🎵</title>
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script>
+    if (localStorage.theme === 'light') {
+      document.documentElement.classList.remove('dark');
+      document.documentElement.classList.add('light');
+    } else {
+      document.documentElement.classList.add('dark');
     }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    form {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-    input[type="text"] {
-      flex: 1;
-      padding: 10px;
-      font-size: 1rem;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 1rem;
-      cursor: pointer;
-    }
-    pre {
-      white-space: pre-wrap;
-      background: #fff;
-      border: 1px solid #ddd;
-      padding: 15px;
-      border-radius: 5px;
-      min-height: 200px;
-    }
-    .error {
-      color: red;
-      text-align: center;
-      margin-top: 15px;
-    }
-  </style>
+  </script>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-  <h1>Lyrics Finder</h1>
-  <form id="lyricsForm">
-    <input type="text" id="titleInput" placeholder="Enter song title" required />
-    <button type="submit">Search</button>
-  </form>
-  <pre id="lyricsOutput">Lyrics will appear here...</pre>
-  <div class="error" id="errorMsg"></div>
+<body class="bg-gray-900 text-white dark:bg-gray-900 dark:text-white light:bg-white light:text-black min-h-screen flex flex-col items-center justify-center p-4 transition duration-300">
+
+  <div class="absolute top-4 right-4 space-x-2">
+    <button id="toggleTheme" class="bg-gray-800 dark:bg-gray-200 text-white dark:text-black px-3 py-1 rounded shadow">
+      Toggle Theme
+    </button>
+  </div>
+
+  <h1 class="text-3xl font-bold mb-6 text-center">🎶 Lyrics Finder</h1>
+
+  <input id="titleInput" type="text" placeholder="Enter song title" 
+         class="w-full max-w-md p-3 rounded text-black mb-2" />
+
+  <select id="historyDropdown" class="w-full max-w-md p-2 mb-4 rounded text-black">
+    <option value="">🔁 Choose from history...</option>
+  </select>
+
+  <button id="searchBtn" 
+          class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4 transition duration-200">
+    Find Lyrics
+  </button>
+
+  <div id="spinner" class="hidden mb-4 animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-blue-500"></div>
+
+  <pre id="output" class="bg-white dark:bg-gray-100 text-black p-4 rounded w-full max-w-md overflow-auto mb-4 whitespace-pre-wrap">
+Lyrics will appear here...
+  </pre>
+
+  <div class="flex gap-4 mb-6">
+    <button id="copyBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">📋 Copy</button>
+    <button id="downloadBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">⬇️ Download</button>
+  </div>
+
+  <a href="https://www.facebook.com/profile.php?id=61576992292379" target="_blank"
+     class="flex items-center gap-2 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-6 rounded-full transition duration-200 shadow-md">
+    <i data-feather="facebook"></i>
+    Follow Sxe Ci 💖
+  </a>
 
   <script>
-    const form = document.getElementById("lyricsForm");
+    const searchBtn = document.getElementById("searchBtn");
     const titleInput = document.getElementById("titleInput");
-    const lyricsOutput = document.getElementById("lyricsOutput");
-    const errorMsg = document.getElementById("errorMsg");
+    const output = document.getElementById("output");
+    const spinner = document.getElementById("spinner");
+    const copyBtn = document.getElementById("copyBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const themeToggle = document.getElementById("toggleTheme");
+    const historyDropdown = document.getElementById("historyDropdown");
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+    let currentLyrics = "";
+    let currentTitle = "";
+
+    function updateHistory(title) {
+      let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
+      if (!history.includes(title)) {
+        history.unshift(title);
+        if (history.length > 10) history = history.slice(0, 10);
+        localStorage.setItem("lyricsHistory", JSON.stringify(history));
+        renderHistoryDropdown();
+      }
+    }
+
+    function renderHistoryDropdown() {
+      let history = JSON.parse(localStorage.getItem("lyricsHistory") || "[]");
+      historyDropdown.innerHTML = '<option value="">🔁 Choose from history...</option>';
+      history.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = item;
+        opt.textContent = item;
+        historyDropdown.appendChild(opt);
+      });
+    }
+
+    searchBtn.addEventListener("click", () => {
       const title = titleInput.value.trim();
-      if (!title) return;
+      if (!title) {
+        output.textContent = "❗ Please enter a song title.";
+        return;
+      }
 
-      lyricsOutput.textContent = "Loading...";
-      errorMsg.textContent = "";
+      output.textContent = "";
+      spinner.classList.remove("hidden");
+      currentLyrics = "";
+      currentTitle = title;
 
-      try {
-        const res = await fetch(`/api/lyrics?title=${encodeURIComponent(title)}`);
-        if (!res.ok) throw new Error("Network response was not ok");
+      fetch(`/api/lyrics?title=${encodeURIComponent(title)}`)
+        .then(res => res.json())
+        .then(data => {
+          spinner.classList.add("hidden");
+          if (data.response && data.response.trim() !== "") {
+            output.textContent = data.response;
+            currentLyrics = data.response;
+            updateHistory(title);
+          } else {
+            output.textContent = "❌ No lyrics found.";
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          spinner.classList.add("hidden");
+          output.textContent = "⚠️ Error fetching lyrics.";
+        });
+    });
 
-        const data = await res.json();
-
-        if (data.error || !data.lyrics) {
-          lyricsOutput.textContent = "";
-          errorMsg.textContent = data.error || "No lyrics found.";
-        } else {
-          lyricsOutput.textContent = data.lyrics;
-        }
-      } catch (error) {
-        lyricsOutput.textContent = "";
-        errorMsg.textContent = "Failed to fetch lyrics. Try again later.";
+    copyBtn.addEventListener("click", () => {
+      if (currentLyrics) {
+        navigator.clipboard.writeText(currentLyrics);
+        alert("✅ Lyrics copied!");
       }
     });
+
+    downloadBtn.addEventListener("click", () => {
+      if (currentLyrics) {
+        const blob = new Blob([currentLyrics], { type: "text/plain" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = `${currentTitle || "lyrics"}.txt`;
+        link.click();
+      }
+    });
+
+    themeToggle.addEventListener("click", () => {
+      const html = document.documentElement;
+      if (html.classList.contains("light")) {
+        html.classList.remove("light");
+        html.classList.add("dark");
+        localStorage.theme = 'dark';
+      } else {
+        html.classList.remove("dark");
+        html.classList.add("light");
+        localStorage.theme = 'light';
+      }
+    });
+
+    historyDropdown.addEventListener("change", () => {
+      const selected = historyDropdown.value;
+      if (selected) {
+        titleInput.value = selected;
+        searchBtn.click();
+      }
+    });
+
+    renderHistoryDropdown();
+    feather.replace(); // Feather icons
   </script>
 </body>
 </html>
