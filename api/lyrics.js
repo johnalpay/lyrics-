@@ -1,4 +1,4 @@
-const axios = require('axios');
+import axios from 'axios';
 
 export default async function handler(req, res) {
   const { artist, title } = req.query;
